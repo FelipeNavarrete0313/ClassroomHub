@@ -6,6 +6,14 @@
     <h2>Learning resources</h2>
     <p>Browse the available learning materials.</p>
 
+    {% if perms.pages.add_resource %}
+        <p>
+            <a href="{% url 'pages:resource-create' %}">
+                Add resource
+            </a>
+        </p>
+    {% endif %}
+
     {% for resource in resources %}
         <article class="resource">
             <h3>

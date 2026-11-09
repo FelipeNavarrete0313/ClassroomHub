@@ -50,6 +50,9 @@
                 {% if perms.pages.view_resource %}
                     <a href="{% url 'pages:resource-review' %}">Review</a>
                 {% endif %}
+                {% if perms.pages.add_resource %}
+                    <a href="{% url 'pages:resource-create' %}">Add resource</a>
+                {% endif %}
                 <form method="post" action="{% url 'pages:logout' %}">
                     {% csrf_token %}
                     <button type="submit">Log out</button>
