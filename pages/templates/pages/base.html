@@ -46,6 +46,7 @@
             <a href="{% url 'pages:about' %}">About</a>
 
             {% if user.is_authenticated %}
+                <a href="{% url 'pages:dashboard' %}">Dashboard</a>
                 <form method="post" action="{% url 'pages:logout' %}">
                     {% csrf_token %}
                     <button type="submit">Log out</button>
