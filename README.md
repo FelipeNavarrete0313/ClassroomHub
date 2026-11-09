@@ -4,6 +4,8 @@ ClassroomHub es un sitio web sencillo hecho con Django para consultar recursos d
 
 Los recursos se guardan en MySQL o MariaDB, se administran desde Django Admin y se consultan con el ORM de Django.
 
+Desde el Laboratorio 08 el sitio también permite registrar cuentas, iniciar y cerrar sesión, visitar un panel privado y revisar el catálogo solo si la cuenta pertenece al grupo `Catalog reviewers`. Todo usa el sistema de autenticación incluido en Django (`django.contrib.auth` y `django.contrib.sessions`).
+
 ## Versiones
 
 - **Python:** 3.12 o superior (Django 6.1 admite Python 3.12, 3.13, 3.14 y 3.15)
@@ -84,6 +86,32 @@ python manage.py createsuperuser
 
 La base empieza vacía: crea categorías y recursos en `/admin/` para verlos en el catálogo.
 
+## Preparar el grupo revisor
+
+El registro público crea cuentas **sin privilegios** (no son staff, ni superusuario, ni pertenecen a grupos). Para que una cuenta pueda abrir `/resources/review/`:
+
+1. Entra en `/admin/` con el superusuario.
+2. En **Groups**, crea el grupo `Catalog reviewers` y asígnale solo el permiso `pages | resource | Can view resource` (`pages.view_resource`).
+3. En **Users**, abre la cuenta de prueba y agrégala al grupo. No marques `Staff status`: no hace falta.
+
+También puedes hacerlo desde `python manage.py shell`:
+
+```python
+from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group, Permission
+from django.contrib.contenttypes.models import ContentType
+from pages.models import Resource
+
+content_type = ContentType.objects.get_for_model(Resource)
+view_permission = Permission.objects.get(content_type=content_type, codename="view_resource")
+reviewers, created = Group.objects.get_or_create(name="Catalog reviewers")
+reviewers.permissions.add(view_permission)
+
+get_user_model().objects.get(username="your_username").groups.add(reviewers)
+```
+
+Las contraseñas se crean siempre con el formulario de registro, `create_user()` o `set_password()`, nunca escribiéndolas directamente en SQL.
+
 ## Ejecutar el servidor
 
 ```bash
@@ -92,14 +120,22 @@ python manage.py runserver
 
 El sitio queda disponible en <http://127.0.0.1:8000/>. Para detener el servidor, pulsa `Ctrl + C`.
 
-## Rutas públicas
+## Rutas
 
-| Ruta | Página | Contenido |
+| Ruta | Acceso | Contenido |
 | --- | --- | --- |
-| `/` | Inicio | Encabezado y mensaje de bienvenida |
-| `/resources/` | Recursos | Recursos guardados en la base, con su categoría y disponibilidad |
-| `/resources/available/` | Disponibles | Solo los recursos disponibles |
-| `/about/` | Acerca de | Propósito de ClassroomHub |
+| `/` | Público | Encabezado y mensaje de bienvenida |
+| `/resources/` | Público | Recursos guardados en la base, con su categoría y disponibilidad |
+| `/resources/available/` | Público | Solo los recursos disponibles |
+| `/about/` | Público | Propósito de ClassroomHub |
+| `/accounts/signup/` | Público | Registro de cuentas normales con `UserCreationForm` |
+| `/accounts/login/` | Público | Inicio de sesión con `LoginView` |
+| `/accounts/logout/` | Solo POST | Cierre de sesión con `LogoutView` (por GET responde `405`) |
+| `/dashboard/` | Cuenta autenticada | Panel privado con contador de visitas guardado en la sesión |
+| `/dashboard/summary/` | Cuenta autenticada | Total de recursos y recursos disponibles (solo lectura) |
+| `/resources/review/` | Permiso `pages.view_resource` | Revisión del catálogo para `Catalog reviewers` |
+
+Un visitante anónimo que abre una ruta privada es redirigido a `/accounts/login/?next=...`. Una cuenta autenticada sin el permiso recibe `403` en `/resources/review/`.
 
 El panel de administración está en `/admin/`. Cualquier ruta desconocida devuelve un error `404`.
 
@@ -119,12 +155,24 @@ Después, ejecuta las pruebas automatizadas:
 python manage.py test pages
 ```
 
-Las 11 pruebas deben pasar. Usan la base temporal `test_classroom_hub`, no `classroom_hub`.
+Las 31 pruebas deben pasar: 11 del Laboratorio 07, 18 de autenticación y permisos del Laboratorio 08 y 2 del reto del resumen privado. Usan la base temporal `test_classroom_hub`, no `classroom_hub`.
+
+También puedes comprobar que no hay cambios de modelos sin migración:
+
+```bash
+python manage.py makemigrations --check --dry-run
+```
+
+## Credenciales y datos privados
+
+- `.env` contiene la contraseña de la base y está en `.gitignore`: no se sube.
+- No compartas usuarios reales, contraseñas, cookies de sesión (`sessionid`) ni exportaciones SQL.
+- Las contraseñas que aparecen en `pages/tests.py` son datos ficticios de prueba.
 
 ## Funcionalidades que todavía no incluye
 
 - Crear, editar o eliminar recursos desde las páginas públicas (solo desde `/admin/`).
-- Formularios públicos.
-- Registro e inicio de sesión de usuarios propios.
+- Recuperación de contraseña por correo, autenticación multifactor u OAuth.
+- Modelo de usuario personalizado.
 - API REST.
 - Despliegue en producción.
