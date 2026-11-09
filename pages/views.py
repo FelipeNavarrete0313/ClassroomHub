@@ -117,3 +117,15 @@ class ResourceCreateView(
     template_name = "pages/resource_form.html"
     permission_required = "pages.add_resource"
     success_url = reverse_lazy("pages:resources")
+
+
+class ResourceUpdateView(
+    LoginRequiredMixin,
+    PermissionRequiredMixin,
+    UpdateView,
+):
+    model = Resource
+    form_class = ResourceForm
+    template_name = "pages/resource_form.html"
+    permission_required = "pages.change_resource"
+    success_url = reverse_lazy("pages:resources")

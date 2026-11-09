@@ -24,6 +24,11 @@ urlpatterns = [
         name="resource-detail",
     ),
     path(
+        "resources/<int:pk>/edit/",
+        views.ResourceUpdateView.as_view(),
+        name="resource-update",
+    ),
+    path(
         "resources/available/",
         views.available_resources,
         name="available-resources",
