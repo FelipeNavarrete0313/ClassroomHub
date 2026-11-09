@@ -1,4 +1,4 @@
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.forms import UserCreationForm
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
@@ -69,3 +69,12 @@ def dashboard(request):
         "pages/dashboard.html",
         {"visit_count": visit_count},
     )
+
+
+@login_required
+@permission_required("pages.view_resource", raise_exception=True)
+def resource_review(request):
+    context = {
+        "resources": Resource.objects.select_related("category").all(),
+    }
+    return render(request, "pages/review.html", context)

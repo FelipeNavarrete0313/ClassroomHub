@@ -9,6 +9,11 @@ urlpatterns = [
     path("", views.home, name="home"),
     path("resources/", views.resources, name="resources"),
     path(
+        "resources/review/",
+        views.resource_review,
+        name="resource-review",
+    ),
+    path(
         "resources/available/",
         views.available_resources,
         name="available-resources",
