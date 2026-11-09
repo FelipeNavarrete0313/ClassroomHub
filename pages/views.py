@@ -1,8 +1,7 @@
 from django.http import HttpResponse
-
-
-from django.http import HttpResponse
 from django.shortcuts import render
+
+from .models import Resource
 
 
 def home(request):
@@ -13,23 +12,16 @@ def home(request):
 
 def resources(request):
     context = {
-        "resources": [
-            {
-                "title": "Python basics",
-                "category": "Programming",
-                "available": True,
-            },
-            {
-                "title": "Git and GitHub",
-                "category": "Collaboration",
-                "available": True,
-            },
-            {
-                "title": "Django models",
-                "category": "Web development",
-                "available": False,
-            },
-        ],
+        "resources": Resource.objects.select_related("category").all(),
+    }
+    return render(request, "pages/resources.html", context)
+
+
+def available_resources(request):
+    context = {
+        "resources": Resource.objects.select_related("category").filter(
+            available=True,
+        ),
     }
     return render(request, "pages/resources.html", context)
 
