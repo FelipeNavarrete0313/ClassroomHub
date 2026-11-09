@@ -1,0 +1,10 @@
+{% extends "pages/base.html" %}
+
+{% block title %}Catalog summary | ClassroomHub{% endblock %}
+
+{% block content %}
+    <h2>Catalog summary</h2>
+    <p>Total resources: {{ total_resources }}</p>
+    <p>Available resources: {{ available_resources }}</p>
+    <p><a href="{% url 'pages:dashboard' %}">Back to dashboard</a></p>
+{% endblock %}

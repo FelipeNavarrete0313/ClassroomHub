@@ -325,3 +325,44 @@ class ResourceReviewPermissionTests(TestCase):
         response = self.client.get("/resources/review/")
 
         self.assertEqual(response.status_code, 403)
+
+
+
+class DashboardSummaryTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        category = Category.objects.create(name="Programming")
+        Resource.objects.create(
+            title="Python basics",
+            available=True,
+            category=category,
+        )
+        Resource.objects.create(
+            title="Django models",
+            available=False,
+            category=category,
+        )
+        cls.user = get_user_model().objects.create_user(
+            username="summary_reader",
+            password="ExampleTestPassword!2026",
+        )
+
+    def test_anonymous_summary_redirects_to_login(self):
+        url = reverse("pages:dashboard-summary")
+
+        response = self.client.get(url)
+
+        self.assertRedirects(
+            response,
+            reverse("pages:login") + f"?next={url}",
+        )
+
+    def test_authenticated_user_sees_resource_counts(self):
+        self.client.force_login(self.user)
+
+        response = self.client.get(reverse("pages:dashboard-summary"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "pages/summary.html")
+        self.assertEqual(response.context["total_resources"], 2)
+        self.assertEqual(response.context["available_resources"], 1)

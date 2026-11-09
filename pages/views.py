@@ -72,6 +72,15 @@ def dashboard(request):
 
 
 @login_required
+def dashboard_summary(request):
+    context = {
+        "total_resources": Resource.objects.count(),
+        "available_resources": Resource.objects.filter(available=True).count(),
+    }
+    return render(request, "pages/summary.html", context)
+
+
+@login_required
 @permission_required("pages.view_resource", raise_exception=True)
 def resource_review(request):
     context = {

@@ -31,6 +31,11 @@ urlpatterns = [
         name="logout",
     ),
     path("dashboard/", views.dashboard, name="dashboard"),
+    path(
+        "dashboard/summary/",
+        views.dashboard_summary,
+        name="dashboard-summary",
+    ),
     path("contact/", views.contact, name="contact"),
     path("topics/<slug:slug>/", views.topic_detail, name="topic-detail"),
 ]
