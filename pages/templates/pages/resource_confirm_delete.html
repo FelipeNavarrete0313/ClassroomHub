@@ -1,0 +1,25 @@
+{% extends "pages/base.html" %}
+
+{% block title %}Delete resource | ClassroomHub{% endblock %}
+
+{% block content %}
+    <h2>Delete resource</h2>
+
+    <p>
+        Are you sure you want to delete
+        <strong>{{ object.title }}</strong>?
+    </p>
+
+    <p>This action removes the resource from the catalog.</p>
+
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit">Confirm deletion</button>
+    </form>
+
+    <p>
+        <a href="{% url 'pages:resource-detail' object.pk %}">
+            Cancel
+        </a>
+    </p>
+{% endblock %}

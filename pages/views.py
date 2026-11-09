@@ -129,3 +129,14 @@ class ResourceUpdateView(
     template_name = "pages/resource_form.html"
     permission_required = "pages.change_resource"
     success_url = reverse_lazy("pages:resources")
+
+
+class ResourceDeleteView(
+    LoginRequiredMixin,
+    PermissionRequiredMixin,
+    DeleteView,
+):
+    model = Resource
+    template_name = "pages/resource_confirm_delete.html"
+    permission_required = "pages.delete_resource"
+    success_url = reverse_lazy("pages:resources")

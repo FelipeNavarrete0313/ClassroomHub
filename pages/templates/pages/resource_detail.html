@@ -22,6 +22,12 @@
         </a>
     {% endif %}
 
+    {% if perms.pages.delete_resource %}
+        <a href="{% url 'pages:resource-delete' resource.pk %}">
+            Delete resource
+        </a>
+    {% endif %}
+
     <p>
         <a href="{% url 'pages:resources' %}">Back to resources</a>
     </p>
