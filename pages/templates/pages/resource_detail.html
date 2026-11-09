@@ -1,0 +1,22 @@
+{% extends "pages/base.html" %}
+
+{% block title %}{{ resource.title }} | ClassroomHub{% endblock %}
+
+{% block content %}
+    <article>
+        <h2>{{ resource.title }}</h2>
+        <p>{{ resource.description }}</p>
+        <p>Category: {{ resource.category.name }}</p>
+        <p>Type: {{ resource.resource_type|default:"Not specified" }}</p>
+
+        {% if resource.available %}
+            <p>Available</p>
+        {% else %}
+            <p>Coming soon</p>
+        {% endif %}
+    </article>
+
+    <p>
+        <a href="{% url 'pages:resources' %}">Back to resources</a>
+    </p>
+{% endblock %}

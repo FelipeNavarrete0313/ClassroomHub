@@ -14,6 +14,16 @@ urlpatterns = [
         name="resource-review",
     ),
     path(
+        "resources/new/",
+        views.ResourceCreateView.as_view(),
+        name="resource-create",
+    ),
+    path(
+        "resources/<int:pk>/",
+        views.ResourceDetailView.as_view(),
+        name="resource-detail",
+    ),
+    path(
         "resources/available/",
         views.available_resources,
         name="available-resources",

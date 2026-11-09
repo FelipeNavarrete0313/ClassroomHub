@@ -8,7 +8,11 @@
 
     {% for resource in resources %}
         <article class="resource">
-            <h3>{{ resource.title }}</h3>
+            <h3>
+                <a href="{% url 'pages:resource-detail' resource.pk %}">
+                    {{ resource.title }}
+                </a>
+            </h3>
             <p>{{ resource.description }}</p>
             <p>Category: {{ resource.category.name }}</p>
 
