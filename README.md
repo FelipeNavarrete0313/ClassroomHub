@@ -88,6 +88,26 @@ python manage.py createsuperuser
 
 La base empieza vacía: crea categorías y recursos en `/admin/` para verlos en el catálogo.
 
+## Crear usuarios
+
+Hay tres formas de crear cuentas; ninguna guarda la contraseña en texto plano:
+
+| Tipo de cuenta | Cómo se crea | Privilegios |
+| --- | --- | --- |
+| Administrador | `python manage.py createsuperuser` | `is_staff` e `is_superuser`; entra a `/admin/` |
+| Cuenta común | Formulario público `/accounts/signup/` | Ninguno: sin staff, sin superusuario y sin grupos |
+| Cuenta de prueba | `python manage.py shell` con `create_user()` | Ninguno hasta que un administrador le asigne un grupo |
+
+```python
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+user = User.objects.create_user(username="demo_reviewer", password="choose_a_private_password")
+print(user.is_staff, user.is_superuser, user.groups.count())  # False False 0
+```
+
+Para cambiar una contraseña usa `user.set_password(...)` seguido de `user.save()` o el comando `python manage.py changepassword <usuario>`.
+
 ## Preparar el grupo revisor
 
 El registro público crea cuentas **sin privilegios** (no son staff, ni superusuario, ni pertenecen a grupos). Para que una cuenta pueda abrir `/resources/review/`:
@@ -209,7 +229,24 @@ Después, ejecuta las pruebas automatizadas:
 python manage.py test pages
 ```
 
-Las 64 pruebas deben pasar: 11 del Laboratorio 07, 18 del Laboratorio 08 y 2 de su reto (resumen privado), 30 de CRUD y permisos del Laboratorio 09 y 3 de su reto (búsqueda). Usan la base temporal `test_classroom_hub`, no `classroom_hub`.
+Las 64 pruebas deben pasar. Usan la base temporal `test_classroom_hub`, que Django crea y destruye; nunca tocan `classroom_hub`.
+
+| Origen | Clase en `pages/tests.py` | Pruebas |
+| --- | --- | --- |
+| Laboratorio 07 | `ClassroomHubTests` | 10 |
+| Laboratorio 07 (reto `/resources/available/`) | `AvailableResourcesTests` | 1 |
+| Laboratorio 08 | `AuthenticationTests` + `ResourceReviewPermissionTests` | 12 + 6 = 18 |
+| Laboratorio 08 (reto `/dashboard/summary/`) | `DashboardSummaryTests` | 2 |
+| Laboratorio 09 | `ResourceCrudTests` | 30 |
+| Laboratorio 09 (reto de búsqueda) | `ResourceSearchTests` | 3 |
+
+La guía y la plataforma esperan 28 pruebas al cerrar el Laboratorio 08 (10 + 18) y 55 al cerrar el 09 (28 + 27). Aquí hay más porque se conservan las pruebas de los retos opcionales y porque la clase `ResourceCrudTests` publicada en la guía del Laboratorio 09 contiene 30 métodos de prueba, no 27. Ninguna prueba exigida se omitió.
+
+Para ejecutar solo las pruebas exigidas por la guía:
+
+```bash
+python manage.py test pages.tests.ClassroomHubTests pages.tests.AuthenticationTests pages.tests.ResourceReviewPermissionTests pages.tests.ResourceCrudTests
+```
 
 También puedes comprobar que no hay cambios de modelos sin migración:
 
