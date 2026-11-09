@@ -23,6 +23,9 @@
             color: #1b4f72;
             text-decoration: none;
         }
+        nav form {
+            margin: 0 0 0 auto;
+        }
         main {
             padding: 20px 0;
         }
@@ -41,6 +44,16 @@
             <a href="{% url 'pages:home' %}">Home</a>
             <a href="{% url 'pages:resources' %}">Resources</a>
             <a href="{% url 'pages:about' %}">About</a>
+
+            {% if user.is_authenticated %}
+                <form method="post" action="{% url 'pages:logout' %}">
+                    {% csrf_token %}
+                    <button type="submit">Log out</button>
+                </form>
+            {% else %}
+                <a href="{% url 'pages:login' %}">Log in</a>
+                <a href="{% url 'pages:signup' %}">Sign up</a>
+            {% endif %}
         </nav>
     </header>
 
