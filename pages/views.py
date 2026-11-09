@@ -26,8 +26,15 @@ def home(request):
 
 
 def resources(request):
+    query = request.GET.get("q", "").strip()
+    resource_list = Resource.objects.select_related("category").all()
+
+    if query:
+        resource_list = resource_list.filter(title__icontains=query)
+
     context = {
-        "resources": Resource.objects.select_related("category").all(),
+        "resources": resource_list,
+        "query": query,
     }
     return render(request, "pages/resources.html", context)
 

@@ -767,3 +767,30 @@ class ResourceCrudTests(TestCase):
         self.assertFalse(
             Resource.objects.filter(title="Database testing").exists()
         )
+
+
+class ResourceSearchTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        category = Category.objects.create(name="Programming")
+        Resource.objects.create(title="Python basics", category=category)
+        Resource.objects.create(title="Django models", category=category)
+
+    def test_search_returns_matching_titles(self):
+        response = self.client.get(reverse("pages:resources"), {"q": "python"})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Python basics")
+        self.assertNotContains(response, "Django models")
+
+    def test_search_without_results_shows_empty_message(self):
+        response = self.client.get(reverse("pages:resources"), {"q": "kotlin"})
+
+        self.assertContains(response, "No resources are available.")
+        self.assertEqual(Resource.objects.count(), 2)
+
+    def test_empty_search_lists_all_resources(self):
+        response = self.client.get(reverse("pages:resources"), {"q": "  "})
+
+        self.assertContains(response, "Python basics")
+        self.assertContains(response, "Django models")
