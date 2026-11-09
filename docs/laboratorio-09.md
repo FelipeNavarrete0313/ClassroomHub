@@ -45,6 +45,16 @@ create_form.instance.pk: None
 update_form initial title: Django models | instance.pk: 3
 ```
 
+Campos vacíos, longitudes y normalización del título:
+
+```text
+Todo vacío: is_valid=False | errors={'title': ['This field is required.'], 'category': ['This field is required.']}
+Título solo espacios: is_valid=False | errors={'title': ['This field is required.']}
+Sin categoría: is_valid=False | errors={'category': ['This field is required.']}
+Título de 151 caracteres: is_valid=False | errors={'title': ['Ensure this value has at most 150 characters (it has 151).']}
+Título con espacios alrededor: is_valid=True | cleaned title='Git basics'
+```
+
 **Reto — `Form` vs `ModelForm`.** Con `forms.Form` habría que declarar a mano cada campo repitiendo tipos y longitudes del modelo (`CharField(max_length=150)`, `ModelChoiceField(queryset=Category.objects.all())`, `BooleanField(required=False)`…) y escribir el código que copia `cleaned_data` al objeto y lo guarda. `ModelForm` deriva todo eso de `Resource`, así que el modelo es la única fuente de verdad y no se duplican definiciones.
 
 ## Práctica 9.3 — Detalle público y creación
@@ -143,6 +153,17 @@ Se agregaron el enlace **Add resource** en el catálogo y en el menú (solo con 
 | P18 | Reiniciar Django (proceso nuevo) | ['Django models', 'Git and GitHub', 'Python basics', 'Web testing updated'] |
 | P19 | /resources/review/ como revisor | 200 |
 | P20 | Pruebas automatizadas | 64 pruebas OK sobre test_classroom_hub (base creada y destruida por Django) |
+
+### Cambios reflejados en Django Admin
+
+Se creó, editó y eliminó un recurso desde las páginas de ClassroomHub con `editor_demo` y se consultó `/admin/` con el superusuario local:
+
+```text
+Creado desde /resources/new/ -> visible en /admin/pages/resource/: True
+Editado desde /resources/7/edit/ -> /admin/ muestra el título nuevo: True
+Eliminado desde /resources/7/delete/ -> ya no aparece en /admin/: True
+editor_demo entra a /admin/? -> 302 (redirige al login del admin: no es staff)
+```
 
 ### Pruebas automatizadas
 
